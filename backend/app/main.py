@@ -5,6 +5,7 @@ from app.database import Base, engine
 from app.models import Category, Product
 from app.routers import categories, products
 from app.models.user import User
+from app.routers import users
 
 
 Base.metadata.create_all(bind=engine)
@@ -28,6 +29,7 @@ app.add_middleware(
 
 app.include_router(categories.router)
 app.include_router(products.router)
+app.include_router(users.router)
 
 
 @app.get("/")
