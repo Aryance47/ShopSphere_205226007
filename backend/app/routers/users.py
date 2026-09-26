@@ -8,6 +8,10 @@ from app.models.user import User
 from app.schemas.user import UserCreate, UserResponse
 from app.auth import create_access_token
 from app.dependencies import get_current_user
+from app.dependencies import (
+    get_current_user,
+    require_admin
+)
 
 
 router = APIRouter(
@@ -107,3 +111,16 @@ def get_current_user_info(
     current_user: User = Depends(get_current_user)
 ):
     return current_user
+
+
+@router.get("/admin-test")
+def admin_test(
+    current_user: User = Depends(require_admin)
+):
+    return {
+        "message": "Admin access successful",
+        "user_id": current_user.id,
+        "email": current_user.email,
+        "role": current_user.role
+    }
+    

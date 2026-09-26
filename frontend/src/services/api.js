@@ -105,3 +105,69 @@ export async function deleteProduct(id) {
 
   return response.json();
 }
+
+
+export async function loginUser(email, password) {
+  const formData = new URLSearchParams();
+
+  formData.append("username", email);
+  formData.append("password", password);
+
+  const response = await fetch(
+    `${API_URL}/api/users/login`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: formData,
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Login failed");
+  }
+
+  localStorage.setItem(
+    "access_token",
+    data.access_token
+  );
+
+  return data;
+}
+
+
+export async function registerUser(user) {
+  const response = await fetch(
+    `${API_URL}/api/users/register`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(user),
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data.detail || "Registration failed"
+    );
+  }
+
+  return data;
+}
+
+
+export function logoutUser() {
+  localStorage.removeItem("access_token");
+}
+
+
+export function getAccessToken() {
+  return localStorage.getItem("access_token");
+}

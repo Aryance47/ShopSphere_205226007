@@ -4,7 +4,13 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.product import Product
 from app.models.category import Category
-from app.schemas.product import ProductCreate, ProductResponse
+from app.dependencies import require_admin
+from app.models.user import User
+from app.schemas.product import (
+    ProductCreate,
+    ProductUpdate,
+    ProductResponse
+)
 
 
 router = APIRouter(
@@ -13,13 +19,12 @@ router = APIRouter(
 )
 
 
-# CREATE PRODUCT
 @router.post("/", response_model=ProductResponse)
 def create_product(
     product: ProductCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin)
 ):
-    # Check whether category exists
     category = (
         db.query(Category)
         .filter(Category.id == product.category_id)
@@ -48,7 +53,6 @@ def create_product(
     return new_product
 
 
-# GET ALL PRODUCTS
 @router.get("/", response_model=list[ProductResponse])
 def get_products(
     search: str | None = None,
@@ -57,13 +61,11 @@ def get_products(
 ):
     query = db.query(Product)
 
-    # Search by product name
     if search:
         query = query.filter(
             Product.name.ilike(f"%{search}%")
         )
 
-    # Filter by category
     if category_id:
         query = query.filter(
             Product.category_id == category_id
@@ -74,7 +76,6 @@ def get_products(
     return products
 
 
-# GET PRODUCT BY ID
 @router.get("/{product_id}", response_model=ProductResponse)
 def get_product(
     product_id: int,
@@ -95,56 +96,43 @@ def get_product(
     return product
 
 
-# UPDATE PRODUCT
-@router.put("/{product_id}", response_model=ProductResponse)
+@router.put("/{product_id}")
 def update_product(
     product_id: int,
-    product_data: ProductCreate,
-    db: Session = Depends(get_db)
+    product: ProductCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin)
 ):
-    product = (
+    existing_product = (
         db.query(Product)
         .filter(Product.id == product_id)
         .first()
     )
 
-    if not product:
+    if not existing_product:
         raise HTTPException(
             status_code=404,
             detail="Product not found"
         )
 
-    # Check category
-    category = (
-        db.query(Category)
-        .filter(Category.id == product_data.category_id)
-        .first()
-    )
-
-    if not category:
-        raise HTTPException(
-            status_code=404,
-            detail="Category not found"
-        )
-
-    product.name = product_data.name
-    product.description = product_data.description
-    product.price = product_data.price
-    product.stock = product_data.stock
-    product.image_url = product_data.image_url
-    product.category_id = product_data.category_id
+    existing_product.name = product.name
+    existing_product.description = product.description
+    existing_product.price = product.price
+    existing_product.stock = product.stock
+    existing_product.image_url = product.image_url
+    existing_product.category_id = product.category_id
 
     db.commit()
-    db.refresh(product)
+    db.refresh(existing_product)
 
-    return product
+    return existing_product
 
 
-# DELETE PRODUCT
 @router.delete("/{product_id}")
 def delete_product(
     product_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin)
 ):
     product = (
         db.query(Product)

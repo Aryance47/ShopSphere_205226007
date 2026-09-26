@@ -1,5 +1,6 @@
 import os
 
+from dotenv import load_dotenv
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 
@@ -9,11 +10,11 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.user import User
 
+load_dotenv()
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/api/users/login"
 )
-
 
 JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 JWT_ALGORITHM = os.getenv(
@@ -59,3 +60,15 @@ def get_current_user(
         raise credentials_exception
 
     return user
+
+
+def require_admin(
+    current_user: User = Depends(get_current_user)
+):
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required"
+        )
+
+    return current_user

@@ -4,6 +4,8 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.category import Category
 from app.schemas.category import CategoryCreate, CategoryResponse
+from app.dependencies import require_admin
+from app.models.user import User
 
 
 router = APIRouter(
@@ -12,11 +14,11 @@ router = APIRouter(
 )
 
 
-# CREATE CATEGORY
-@router.post("/", response_model=CategoryResponse)
+@router.post("/")
 def create_category(
     category: CategoryCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin)
 ):
     existing_category = (
         db.query(Category)
@@ -42,7 +44,6 @@ def create_category(
     return new_category
 
 
-# GET ALL CATEGORIES
 @router.get("/", response_model=list[CategoryResponse])
 def get_categories(db: Session = Depends(get_db)):
     categories = db.query(Category).all()
@@ -50,7 +51,6 @@ def get_categories(db: Session = Depends(get_db)):
     return categories
 
 
-# GET CATEGORY BY ID
 @router.get("/{category_id}", response_model=CategoryResponse)
 def get_category(
     category_id: int,
@@ -71,12 +71,12 @@ def get_category(
     return category
 
 
-# UPDATE CATEGORY
 @router.put("/{category_id}", response_model=CategoryResponse)
 def update_category(
     category_id: int,
     category_data: CategoryCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin)
 ):
     category = (
         db.query(Category)
@@ -99,11 +99,11 @@ def update_category(
     return category
 
 
-# DELETE CATEGORY
 @router.delete("/{category_id}")
 def delete_category(
     category_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin)
 ):
     category = (
         db.query(Category)
@@ -123,3 +123,4 @@ def delete_category(
     return {
         "message": "Category deleted successfully"
     }
+    

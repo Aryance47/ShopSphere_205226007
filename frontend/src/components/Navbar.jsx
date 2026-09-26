@@ -1,17 +1,52 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+
+import {
+  getAccessToken,
+  logoutUser,
+} from "../services/api";
 
 function Navbar() {
+  const navigate = useNavigate();
+
+  const token = getAccessToken();
+
+  const handleLogout = () => {
+    logoutUser();
+
+    navigate("/login");
+  };
+
   return (
     <nav>
-      <h2>ShopSphere</h2>
+      <Link to="/">ShopSphere</Link>
 
-      <div>
-        <Link to="/">Home</Link>
-        {" | "}
-        <Link to="/products">Products</Link>
-        {" | "}
-        <Link to="/admin/products">Admin</Link>
-      </div>
+      {" | "}
+
+      <Link to="/products">
+        Products
+      </Link>
+
+      {" | "}
+
+      {token ? (
+        <>
+          <button onClick={handleLogout}>
+            Logout
+          </button>
+        </>
+      ) : (
+        <>
+          <Link to="/login">
+            Login
+          </Link>
+
+          {" | "}
+
+          <Link to="/register">
+            Register
+          </Link>
+        </>
+      )}
     </nav>
   );
 }
