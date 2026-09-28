@@ -9,6 +9,7 @@ import AdminProducts from "./pages/AdminProducts";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Cart from "./pages/Cart";
 
 
 function App() {
@@ -32,6 +33,11 @@ function App() {
         <Route
           path="/products/:id"
           element={<ProductDetails />}
+        />
+
+        <Route
+          path="/cart"
+          element={<Cart />}
         />
 
         <Route

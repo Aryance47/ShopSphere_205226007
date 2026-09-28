@@ -30,6 +30,12 @@ function Navbar() {
 
       {token ? (
         <>
+          <Link to="/cart">
+            Cart
+          </Link>
+
+          {" | "}
+
           <button onClick={handleLogout}>
             Logout
           </button>

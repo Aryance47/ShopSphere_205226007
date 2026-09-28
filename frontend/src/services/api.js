@@ -171,3 +171,145 @@ export function logoutUser() {
 export function getAccessToken() {
   return localStorage.getItem("access_token");
 }
+
+
+export async function getCart() {
+  const token = getAccessToken();
+
+  const response = await fetch(
+    `${API_URL}/api/cart/`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data.detail || "Failed to fetch cart"
+    );
+  }
+
+  return data;
+}
+
+
+export async function addToCart(productId, quantity = 1) {
+  const token = getAccessToken();
+
+  const response = await fetch(
+    `${API_URL}/api/cart/items`,
+    {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+
+      body: JSON.stringify({
+        product_id: productId,
+        quantity: quantity,
+      }),
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data.detail || "Failed to add product to cart"
+    );
+  }
+
+  return data;
+}
+
+
+export async function updateCartItem(
+  itemId,
+  quantity
+) {
+  const token = getAccessToken();
+
+  const response = await fetch(
+    `${API_URL}/api/cart/items/${itemId}`,
+    {
+      method: "PUT",
+
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+
+      body: JSON.stringify({
+        quantity: quantity,
+      }),
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data.detail || "Failed to update cart item"
+    );
+  }
+
+  return data;
+}
+
+
+export async function removeCartItem(itemId) {
+  const token = getAccessToken();
+
+  const response = await fetch(
+    `${API_URL}/api/cart/items/${itemId}`,
+    {
+      method: "DELETE",
+
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data.detail || "Failed to remove cart item"
+    );
+  }
+
+  return data;
+}
+
+
+export async function clearCart() {
+  const token = getAccessToken();
+
+  const response = await fetch(
+    `${API_URL}/api/cart/`,
+    {
+      method: "DELETE",
+
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data.detail || "Failed to clear cart"
+    );
+  }
+
+  return data;
+}
