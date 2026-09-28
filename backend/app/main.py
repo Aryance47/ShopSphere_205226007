@@ -8,13 +8,16 @@ from app.models import (
     Product,
     User,
     Cart,
-    CartItem
+    CartItem,
+    Order,
+    OrderItem
 )
 from app.routers import (
     categories,
     products,
     users,
-    cart
+    cart,
+    orders
 )
 
 
@@ -41,6 +44,7 @@ app.include_router(categories.router)
 app.include_router(products.router)
 app.include_router(users.router)
 app.include_router(cart.router)
+app.include_router(orders.router)
 
 
 @app.get("/")

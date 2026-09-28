@@ -57,11 +57,38 @@ def get_cart(
         .all()
     )
 
+    result = []
+
+    for item in items:
+
+        product = (
+            db.query(Product)
+            .filter(Product.id == item.product_id)
+            .first()
+        )
+
+        if product:
+            result.append({
+                "id": item.id,
+                "cart_id": item.cart_id,
+                "product_id": item.product_id,
+                "quantity": item.quantity,
+
+                "product": {
+                    "id": product.id,
+                    "name": product.name,
+                    "price": product.price,
+                    "stock": product.stock,
+                    "image_url": product.image_url
+                }
+            })
+
     return {
         "id": cart.id,
         "user_id": cart.user_id,
-        "items": items
+        "items": result
     }
+    
     
     
 @router.post("/items")

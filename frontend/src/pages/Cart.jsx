@@ -273,6 +273,12 @@ function Cart() {
           Total: ₹{cartTotal.toFixed(2)}
         </h2>
 
+        <Link to="/checkout">
+          <button>
+            Proceed to Checkout
+          </button>
+        </Link>
+
         <button
           onClick={handleClearCart}
         >

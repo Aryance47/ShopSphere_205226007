@@ -313,3 +313,36 @@ export async function clearCart() {
 
   return data;
 }
+
+
+export async function checkout(
+  shippingAddress
+) {
+  const token = getAccessToken();
+
+  const response = await fetch(
+    `${API_URL}/api/orders/checkout`,
+    {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+
+      body: JSON.stringify({
+        shipping_address: shippingAddress,
+      }),
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data.detail || "Checkout failed"
+    );
+  }
+
+  return data;
+}
